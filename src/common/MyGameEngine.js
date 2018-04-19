@@ -1,3 +1,5 @@
+'use strict';
+
 import TwoVector from 'lance/serialize/TwoVector';
 import PlayerShooter from './PlayerShooter';
 import Bullet from './Bullet';
@@ -48,4 +50,36 @@ initGame() {
 
     this.addObjectToWorld(new PlayerShooter(this,null, { position: new TwoVector(PADDING, 0), playerId: 1}));
     this.addObjectToWorld(new PlayerShooter(this,null, { position: new TwoVector(WIDTH - PADDING, 0), playerId: 2}));
-    this.addObjectToWorld(new Bullet(this, null, { position: new TwoVector(WIDTH /2, HEIGHT / 2) }));}
+    this.addObjectToWorld(new Bullet(this, null, { position: new TwoVector(WIDTH /2, HEIGHT / 2) }));
+}
+
+postStepHandleBullet() {
+    if (!this.bullet){
+        return;
+    }
+
+    // Check left edge
+    if (this.bullet.position.x <= PADDING + PLAYERSHOOTER_WIDTH &&
+        this.bullet.position.y <= this.playershooter1.position.y + PLAYERSHOOTER_HEIGHT &&
+        this.bullet.velocity.x > 0){
+        //bullet hit player 1
+
+        this.bullet.velocity.x *= -1;
+        this.bullet.position.x = PADDING + PLAYERSHOOTER_WIDTH + 1;
+        console.log('Player 1 hit');
+    }
+
+    // Check right edge
+    if (this.bullet.position.x >= WIDTH - PADDING - PLAYERSHOOTER_WIDTH &&
+        this.bullet.position.y >= this.playershooter2.position.y && this.bullet.position.y <= this.playershooter2.position.y + PLAYERSHOOTER_HEIGHT &&
+        this.bullet.velocity.x > 0) {
+
+        // bullet hits player 2
+        this.ball.velocity.x *= -1;
+        this.ball.position.x = WIDTH - PADDING - PLAYERSHOOTER_WIDTH - 1;
+    }
+
+
+
+
+}
