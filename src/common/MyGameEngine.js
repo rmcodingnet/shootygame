@@ -1,50 +1,51 @@
-'use strict';
+import TwoVector from 'lance/serialize/TwoVector';
+import PlayerShooter from './PlayerShooter';
+import Bullet from './Bullet';
+const PADDING = 20;
+const WIDTH = 400;
+const HEIGHT = 400;
+const PLAYERSHOOTER_WIDTH = 10;
+const PLAYERSHOOTER_HEIGHT = 10;
 
-import GameEngine from 'lance/GameEngine';
-import SimplePhysicsEngine from 'lance/physics/SimplePhysicsEngine';
-import PlayerAvatar from './PlayerAvatar';
+start() {
+    super.start();
 
-export default class MyGameEngine extends GameEngine {
-
-    constructor(options) {
-        super(options);
-        this.physicsEngine = new SimplePhysicsEngine({ gameEngine: this });
+    this.on('postStep', () => {this.postStepHandleBullet();});
+    this.on('objectAdded', (object) => {
+       if (object.class === Bullet) {
+           this.bullet = object;
+    } else if (object.playerId === 1 ){
+        this.playershooter1 = object;
+    } else if (object.playerId === 2) {
+        this.playershooter2 = object;
     }
+    });
+}
 
-    registerClasses(serializer) {
-        serializer.registerClass(PlayerAvatar);
-    }
+registerClasses(serializer) {
+    serializer.registerClass(PlayerShooter);
+    serializer.registerClass(Bullet);
+}
 
-    start() {
+processInput(inputData, playerId) {
+    super.processInput(inputData, playerId);
 
-        super.start();
-
-        this.worldSettings = {
-            width: 400,
-            height: 400
-        };
-    }
-
-    processInput(inputData, playerId) {
-
-        super.processInput(inputData, playerId);
-
-        // get the player's primary object
-        let player = this.world.getPlayerObject(playerId);
-        if (player) {
-            console.log(`player ${playerId} pressed ${inputData.input}`);
-            if (inputData.input === 'up') {
-                player.isMovingUp = true;
-            } else if (inputData.input === 'down') {
-                player.isMovingDown = true;
-            } else if (inputData.input === 'right') {
-                player.isRotatingRight = true;
-            } else if (inputData.input === 'left') {
-                player.isRotatingLeft = true;
-            } else if (inputData.input === 'space') {
-                this.fire(player, inputData.messageIndex);
-                this.emit('fire');
-            }
+    let playerShooter = this.world.queryObject({ playerId });
+    if (playerShooter) {
+        if (inputData.input === 'up') {
+            playerShooter.position.y -= 5;
+        } else if (inputData.input === 'down'){
+            playerShooter.position.y += 5;
+        } else if (inputData.input === 'left') {
+            playerShooter.position.x -= 5;
+        } else if (inputData.input === 'right') {
+            playerShooter.position.x += 5;
         }
     }
 }
+
+initGame() {
+
+    this.addObjectToWorld(new PlayerShooter(this,null, { position: new TwoVector(PADDING, 0), playerId: 1}));
+    this.addObjectToWorld(new PlayerShooter(this,null, { position: new TwoVector(WIDTH - PADDING, 0), playerId: 2}));
+    this.addObjectToWorld(new Bullet(this, null, { position: new TwoVector(WIDTH /2, HEIGHT / 2) }));}
