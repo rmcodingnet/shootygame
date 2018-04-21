@@ -6,10 +6,10 @@ import Bullet from './Bullet';
 const PADDING = 20;
 const WIDTH = 400;
 const HEIGHT = 400;
-const PLAYERSHOOTER_WIDTH = 10;
-const PLAYERSHOOTER_HEIGHT = 10;
+const PLAYERSHOOTER_WIDTH = 50;
+const PLAYERSHOOTER_HEIGHT = 50;
 
-start() {
+start(){
     super.start();
 
     this.on('postStep', () => {this.postStepHandleBullet();});
